@@ -57,9 +57,50 @@ impl UnionFind {
         }
         count
     }
+}
 
+pub fn hoare_partition<T>(nums: &mut [T], mut lo: usize, mut hi: usize, pivot_index: usize) -> usize
+where
+    T: std::cmp::PartialOrd + Copy,
+{
+    let pivot = nums[pivot_index];
+    let n = hi;
+
+    while hi <= n && lo < hi {
+        while nums[lo] < pivot {
+            lo += 1;
+        }
+
+        while hi > 0 && nums[hi] >= pivot {
+            hi -= 1;
+        }
+
+        if lo < hi {
+            nums.swap(lo, hi);
+        }
+    }
+    lo
+}
+
+pub fn lomuto_partition<T>(nums: &mut [T], left: usize, right: usize, pivot_index: usize) -> usize
+where
+    T: std::cmp::PartialOrd + Copy,
+{
+    let pivot = nums[pivot_index];
+
+    nums.swap(pivot_index, right);
+    let mut store_index = left;
+
+    for i in left..right {
+        if nums[i] < pivot {
+            nums.swap(store_index, i);
+            store_index += 1;
+        }
+    }
+
+    nums.swap(store_index, right);
+    store_index
 }
 
 #[cfg(test)]
 mod tests;
-
