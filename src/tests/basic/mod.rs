@@ -41,3 +41,12 @@ fn lomuto_partition_basic_1() {
         assert!(data[i] > 5);
     }
 }
+
+#[test]
+fn quickselect_basic_1() {
+    let data = [5, 3, 1, 6, 9];
+    let sorted = { let mut t = data.clone(); t.sort(); t };
+    for (k, s) in sorted.into_iter().enumerate() {
+        assert_eq!(quickselect(&mut data.clone(), 0, 4, k), s);
+    }
+}

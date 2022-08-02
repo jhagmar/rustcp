@@ -102,5 +102,25 @@ where
     store_index
 }
 
+
+fn quickselect<T>(nums: &mut [T], lo: usize, hi: usize, k: usize) -> T
+where
+    T: std::cmp::PartialOrd + Copy {
+    if lo == hi {
+        nums[lo]
+    } else {
+        let pivot_index = lo + (hi - lo) / 2;
+        let pivot = nums[pivot_index];
+
+        let pivot_index = lomuto_partition(nums, lo, hi, pivot_index);
+
+        match k.cmp(&pivot_index) {
+            Ordering::Equal => pivot,
+            Ordering::Less => quickselect(nums, lo, pivot_index - 1, k),
+            Ordering::Greater => quickselect(nums, pivot_index + 1, hi, k),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests;
