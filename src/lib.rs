@@ -1,4 +1,7 @@
-use std::cmp::Ordering;
+use std::{
+    cmp::Ordering,
+    ops::{Add, AddAssign},
+};
 
 pub struct UnionFind {
     root: Vec<usize>,
@@ -102,10 +105,10 @@ where
     store_index
 }
 
-
-fn quickselect<T>(nums: &mut [T], lo: usize, hi: usize, k: usize) -> T
+pub fn quickselect<T>(nums: &mut [T], lo: usize, hi: usize, k: usize) -> T
 where
-    T: std::cmp::PartialOrd + Copy {
+    T: std::cmp::PartialOrd + Copy,
+{
     if lo == hi {
         nums[lo]
     } else {
@@ -119,6 +122,56 @@ where
             Ordering::Less => quickselect(nums, lo, pivot_index - 1, k),
             Ordering::Greater => quickselect(nums, pivot_index + 1, hi, k),
         }
+    }
+}
+
+pub struct SegmentTree<T> {
+    n: usize,
+    tree: Vec<T>,
+}
+
+impl<T> SegmentTree<T>
+where
+    T: Copy + Add<Output = T> + Default + AddAssign,
+{
+    pub fn new(nums: &[T]) -> Self {
+        let n = nums.len();
+        let mut tree: Vec<_> = std::iter::repeat(T::default())
+            .take(n)
+            .chain(nums.iter().copied())
+            .collect();
+        for i in (1..n).rev() {
+            tree[i] = tree[2 * i] + tree[2 * i + 1];
+        }
+        Self { n, tree }
+    }
+
+    pub fn update(&mut self, index: usize, val: T) {
+        let mut i = index + self.n;
+        self.tree[i] = val;
+        while i > 0 {
+            let (child1, child2) = (i, if i % 2 == 0 { i + 1 } else { i - 1 });
+            i /= 2;
+            self.tree[i] = self.tree[child1] + self.tree[child2];
+        }
+    }
+
+    pub fn sum_range(&self, left: usize, right: usize) -> T {
+        let (mut left, mut right) = (left as usize + self.n, right as usize + self.n);
+        let mut sum = T::default();
+        while left <= right {
+            if left % 2 == 1 {
+                sum += self.tree[left];
+                left += 1;
+            }
+            if right % 2 == 0 {
+                sum += self.tree[right];
+                right -= 1;
+            }
+            left /= 2;
+            right /= 2;
+        }
+        sum
     }
 }
 

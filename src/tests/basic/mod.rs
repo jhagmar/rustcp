@@ -45,8 +45,27 @@ fn lomuto_partition_basic_1() {
 #[test]
 fn quickselect_basic_1() {
     let data = [5, 3, 1, 6, 9];
-    let sorted = { let mut t = data.clone(); t.sort(); t };
+    let sorted = {
+        let mut t = data.clone();
+        t.sort();
+        t
+    };
     for (k, s) in sorted.into_iter().enumerate() {
         assert_eq!(quickselect(&mut data.clone(), 0, 4, k), s);
     }
+}
+
+#[test]
+fn segment_tree_basic_1() {
+    let data = [5, 3, 1, 6, 9];
+    let mut st = SegmentTree::new(&data);
+    assert_eq!(st.sum_range(0, 4), 24);
+    assert_eq!(st.sum_range(0, 1), 8);
+    assert_eq!(st.sum_range(2, 4), 16);
+    assert_eq!(st.sum_range(1, 3), 10);
+    st.update(2, 2);
+    assert_eq!(st.sum_range(0, 4), 25);
+    assert_eq!(st.sum_range(0, 1), 8);
+    assert_eq!(st.sum_range(2, 4), 17);
+    assert_eq!(st.sum_range(1, 3), 11);
 }
