@@ -175,5 +175,47 @@ where
     }
 }
 
+/// Calculates length of longest increasing subsequence.
+///
+/// Time complexity: O(n * log(n))
+/// Space complexity: O(n)
+///
+/// # Arguments
+///
+/// * `nums` a slice of numbers, or anything that is `Ord + Copy`
+///
+/// Examples
+///
+/// ```
+/// # use rustcp::lis_len;
+/// assert_eq!(lis_len(&[10,9,2,5,3,7,101,18]), 4);
+/// ```
+///
+/// ```
+/// # use rustcp::lis_len;
+/// assert_eq!(lis_len(&[0,1,0,3,2,3]), 4);
+/// ```
+///
+/// ```
+/// # use rustcp::lis_len;
+/// assert_eq!(lis_len(&[7,7,7,7,7,7,7]), 1);
+/// ```
+pub fn lis_len<T>(nums: &[T]) -> usize
+where
+    T: Ord + Copy,
+{
+    let mut sub = Vec::with_capacity(nums.len());
+    for num in nums {
+        if let Err(index) = sub.binary_search(num) {
+            if index == sub.len() {
+                sub.push(*num);
+            } else {
+                sub[index] = *num;
+            }
+        }
+    }
+    sub.len()
+}
+
 #[cfg(test)]
 mod tests;
