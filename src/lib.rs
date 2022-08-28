@@ -217,5 +217,68 @@ where
     sub.len()
 }
 
+pub type TopoSortGraph = [Vec<usize>];
+#[derive(Copy, Clone)]
+enum TopoSortMark {
+    Cleared,
+    Temporary,
+    Permanent,
+}
+
+use std::collections::VecDeque;
+
+fn toposort_dfs(graph: &TopoSortGraph, marks: &mut [TopoSortMark], n: usize, mut rez: VecDeque<usize>) -> Option<VecDeque<usize>> {
+    match marks[n] {
+        TopoSortMark::Cleared => {
+            marks[n] = TopoSortMark::Temporary;
+            for m in &graph[n] {
+                match toposort_dfs(graph, marks, *m, rez) {
+                    Some(r) => rez = r,
+                    None => return None,
+                }
+            }
+            rez.push_front(n);
+            marks[n] = TopoSortMark::Permanent;
+            Some(rez)
+        },
+        TopoSortMark::Temporary => None,
+        TopoSortMark::Permanent => Some(rez),
+    }
+}
+
+/// Performs topological sorting.
+///
+/// Time complexity: O(N + E), all (N)odes and (E)dges are visited once
+/// Space complexity: O(N) for allocation of marks
+///
+/// # Arguments
+///
+/// * `graph` a graph of dependencies
+///
+/// Examples
+///
+/// ```
+/// # use rustcp::toposort;
+/// let graph = [vec![], vec![0], vec![1]];
+/// assert_eq!(toposort(&graph), Some(vec![2,1,0]));
+/// ```
+///
+/// ```
+/// # use rustcp::toposort;
+/// let graph = [vec![2], vec![0], vec![1]];
+/// assert_eq!(toposort(&graph), None);
+/// ```
+pub fn toposort(graph: &TopoSortGraph) -> Option<Vec<usize>> {
+    let mut marks = vec![TopoSortMark::Cleared; graph.len()];
+    let mut rez = VecDeque::new();
+    for n in 0..graph.len() {
+        match toposort_dfs(graph, &mut marks, n, rez) {
+            Some(r) => rez = r,
+            None => return None,
+        }
+    }
+    Some(rez.into_iter().collect())
+}
+
 #[cfg(test)]
 mod tests;
